@@ -1,14 +1,26 @@
+(def apply-message-to
+  (fn [class instance message args]
+    (let [method (message (:__instance_methods__ class))]
+      (apply method instance args))))
+
 (def make
      (fn [class & args]
-       (let [seeded {:__class_symbol__ (:__own_symbol__ class)}
-             constructor  (:add-instance-values (:__instance_methods__ class))]
-         (apply constructor seeded args))))
+       (let 
+         [seeded {:__class_symbol__ (:__own_symbol__ class)}
+          ;;constructor  (:add-instance-values (:__instance_methods__ class))
+          ]
+         ;;(apply constructor seeded args)
+         (apply-message-to class seeded :add-instance-values args)
+         )))
+
 
 (def send-to
      (fn [instance message & args]
        (let [class (eval (:__class_symbol__ instance))
              method (message (:__instance_methods__ class))]
-         (apply method instance args))))
+         ;;(apply method instance args)
+         (apply-message-to class instance message args)
+         )))
 
 
 (def Point
@@ -29,6 +41,16 @@
  })
 
 
+(def a-point (make Point 1 2))
+
+;; send-to
+(
+ send-to a-point
+ :shift 5 12
+)
+
+
+
 ;; For exercise 4
 (def Holder  
 {
@@ -39,4 +61,3 @@
                            (assoc this :held held))
   }
 })
-
